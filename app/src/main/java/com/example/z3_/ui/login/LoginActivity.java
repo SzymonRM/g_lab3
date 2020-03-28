@@ -5,6 +5,8 @@ import android.app.Activity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -28,10 +30,15 @@ import com.example.z3_.ui.login.LoginViewModelFactory;
 
 public class LoginActivity extends AppCompatActivity
 {
+    private static final String[] DUMMY_CREDENTIALS = new String[] {
+            "sm:sm123", "bar@example.com:world" };
+    private String mEmail;
+    private String mPassword;
+
     private LoginViewModel loginViewModel;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory())
@@ -61,13 +68,24 @@ public class LoginActivity extends AppCompatActivity
         loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
             @Override
             public void onChanged(@Nullable LoginResult loginResult) {
-                if (loginResult == null) {
-                    return;
+
+                mEmail = usernameEditText.getText().toString();
+                mPassword = passwordEditText.getText().toString();
+                String data = mEmail + ":" + mPassword;
+
+                for (String credential : DUMMY_CREDENTIALS)
+                {
+                    if (data.equals(mEmail))
+                    {
+                        finish();
+                    }
                 }
+
                 loadingProgressBar.setVisibility(View.GONE);
                 if (loginResult.getError() != null) {
                     showLoginFailed(loginResult.getError());
                 }
+
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
                 }
